@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>국가 취업 가상 포털 - JobPortal</title>
+    <style>
+        /* 기본 스타일 */
+        body {
+            font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f6fa;
+            color: #333;
+        }
+
+        /* 헤더 & 검색 영역 */
+        header {
+            background-color: #ffffff;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #0059cc;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 900;
+            color: #0059cc;
+            letter-spacing: -1px;
+            cursor: pointer;
+        }
+        .search-area {
+            display: flex;
+            align-items: center;
+        }
+        .search-area input {
+            width: 350px;
+            padding: 10px 15px;
+            border: 2px solid #0059cc;
+            border-radius: 4px 0 0 4px;
+            outline: none;
+            font-size: 15px;
+        }
+        .search-area button {
+            padding: 10px 20px;
+            background-color: #0059cc;
+            color: #fff;
+            border: 2px solid #0059cc;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+        }
+        .search-area button:hover {
+            background-color: #004499;
+        }
+
+        /* 내비게이션 바 (메뉴) */
+        nav {
+            background-color: #0059cc;
+            display: flex;
+            padding: 0 40px;
+        }
+        nav div {
+            padding: 15px 25px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        nav div:hover, nav div.active {
+            background-color: #003d8c;
+        }
+
+        /* 메인 컨테이너 */
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            min-height: 500px;
+        }
+
+        /* 탭 컨텐츠 */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 컨트롤 패널 (필터 및 추가 버튼 영역) */
+        .control-panel {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e5e5e5;
+        }
+        .filters select {
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 5px;
+            font-size: 14px;
+        }
+
+        /* 버튼 스타일 */
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            color: #fff;
+        }
+        .btn-add { background-color: #0059cc; padding: 10px 15px; font-size: 14px;}
+        .btn-edit { background-color: #28a745; }
+        .btn-delete { background-color: #dc3545; }
+        .btn:hover { opacity: 0.8; }
+
+        /* 테이블 스타일 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #e5e5e5;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #f1f3f5;
+            font-weight: bold;
+            color: #333;
+        }
+        td.left-align {
+            text-align: left;
+        }
+        
+        h2 { margin-top: 0; color: #111; font-size: 22px; }
+    </style>
+</head>
+<body>
+
+    <!-- 헤더 / 검색영역 -->
+    <header>
+        <div class="logo">JobPortal</div>
+        <div class="search-area">
+            <input type="text" id="searchInput" placeholder="기업명, 채용공고, 자격증 검색">
+            <button onclick="searchKeyword()">검색</button>
+        </div>
+    </header>
+
+    <!-- 내비게이션 (GNB) -->
+    <nav>
+        <div class="nav-item active" onclick="switchTab('region-jobs', this)">지역별 공고</div>
+        <div class="nav-item" onclick="switchTab('industry-jobs', this)">업종별 공고</div>
+        <div class="nav-item" onclick="switchTab('cert-info', this)">자격증 정보</div>
+        <div class="nav-item" onclick="switchTab('national-companies', this)">전국 기업정보</div>
+        <div class="nav-item" onclick="switchTab('global-companies', this)">세계 기업정보</div>
+    </nav>
+
+    <!-- 메인 컨텐츠 -->
+    <div class="container">
+        
+        <!-- 1. 지역별 공고 -->
+        <div id="region-jobs" class="tab-content active">
+            <h2>지역별 공고 관리</h2>
+            <div class="control-panel">
+                <div class="filters">
+                    <select><option>행정구역 선택 (시/도)</option><option>서울특별시</option><option>부산광역시</option></select>
+                    <select><option>시/군/구</option><option>강남구</option><option>해운대구</option></select>
+                </div>
+                <button class="btn btn-add" onclick="mockAction('추가', '기업 공고')">+ 공고/기업 추가</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>지역</th>
+                        <th>기업명</th>
+                        <th>공고 제목</th>
+                        <th>관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>서울 > 강남구</td>
+                        <td class="left-align">(주)테크솔루션</td>
+                        <td class="left-align">프론트엔드 개발자 채용</td>
+                        <td>
+                            <button class="btn btn-edit" onclick="mockAction('수정', '기업 공고')">수정</button>
+                            <button class="btn btn-delete" onclick="mockAction('삭제', '기업 공고')">삭제</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 2. 업종별 공고 -->
+        <div id="industry-jobs" class="tab-content">
+            <h2>업종별 공고 관리</h2>
+            <div class="control-panel">
+                <div class="filters">
+                    <select><option>1차 업종 (대분류)</option><option>IT·인터넷</option><option>금융·은행</option></select>
+                    <select><option>2차 업종 (중분류)</option><option>소프트웨어 개발</option><option>보안</option></select>
+                </div>
+                <div>
+                    <button class="btn btn-add" onclick="mockAction('추가', '업종 카테고리')">+ 업종 추가</button>
+                    <button class="btn btn-add" onclick="mockAction('추가', '업종별 공고')">+ 공고 추가</button>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>업종 (대 > 중)</th>
+                        <th>기업명</th>
+                        <th>공고 제목</th>
+                        <th>관리 (업종/공고)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>IT·인터넷 > 웹개발</td>
+                        <td class="left-align">코딩웍스</td>
+                        <td class="left-align">웹 퍼블리셔 신입 모집</td>
+                        <td>
+                            <button class="btn btn-edit" onclick="mockAction('수정', '업종/공고')">수정</button>
+                            <button class="btn btn-delete" onclick="mockAction('삭제', '업종/공고')">삭제</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 3. 자격증 정보 -->
+        <div id="cert-info" class="tab-content">
+            <h2>자격증 정보 관리</h2>
+            <div class="control-panel">
+                <div class="filters">
+                    <select><option>분야 (카테고리)</option><option>IT/정보통신</option><option>어학</option><option>국가기술자격</option></select>
+                </div>
+                <div>
+                    <button class="btn btn-add" onclick="mockAction('추가', '분야(카테고리)')">+ 분야 추가</button>
+                    <button class="btn btn-add" onclick="mockAction('추가', '자격증')">+ 자격증 추가</button>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>분야(카테고리)</th>
+                        <th>자격증명</th>
+                        <th>시행기관</th>
+                        <th>관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>IT/정보통신</td>
+                        <td class="left-align">정보처리기사</td>
+                        <td>한국산업인력공단</td>
+                        <td>
+                            <button class="btn btn-edit" onclick="mockAction('수정', '자격증')">수정</button>
+                            <button class="btn btn-delete" onclick="mockAction('삭제', '자격증')">삭제</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 4. 전국 기업정보 -->
+        <div id="national-companies" class="tab-content">
+            <h2>전국 기업정보 관리</h2>
+            <div class="control-panel">
+                <div class="filters">
+                    <select><option>시/도</option><option>경기도</option></select>
+                    <select><option>시/군/구</option><option>성남시 분당구</option></select>
+                    <select><option>동/읍/면</option><option>삼평동</option></select>
+                </div>
+                <button class="btn btn-add" onclick="mockAction('추가', '전국 기업정보')">+ 기업 추가</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>행정구역 (시/도 > 시/군/구 > 동/읍/면)</th>
+                        <th>기업명</th>
+                        <th>기업규모</th>
+                        <th>관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>경기도 > 성남시 분당구 > 삼평동</td>
+                        <td class="left-align">판교네트웍스</td>
+                        <td>중견기업</td>
+                        <td>
+                            <button class="btn btn-edit" onclick="mockAction('수정', '전국 기업정보')">수정</button>
+                            <button class="btn btn-delete" onclick="mockAction('삭제', '전국 기업정보')">삭제</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 5. 세계 기업정보 -->
+        <div id="global-companies" class="tab-content">
+            <h2>세계 기업정보 관리</h2>
+            <div class="control-panel">
+                <div class="filters">
+                    <select><option>지역(대륙)</option><option>북미</option><option>유럽</option></select>
+                    <select><option>국가</option><option>미국</option><option>캐나다</option></select>
+                    <select><option>1차 행정구역 (State/Province)</option><option>캘리포니아 (CA)</option></select>
+                    <select><option>2차 행정구역 (County)</option><option>산타클라라 카운티</option></select>
+                    <select><option>3차 행정구역 (City/Town)</option><option>산호세 (San Jose)</option></select>
+                </div>
+                <button class="btn btn-add" onclick="mockAction('추가', '세계 기업정보')">+ 글로벌 기업 추가</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>글로벌 위치 (지역 > 국가 > 1차 > 2차 > 3차)</th>
+                        <th>기업명</th>
+                        <th>산업분야</th>
+                        <th>관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="left-align">북미 > 미국 > 캘리포니아 > 산타클라라 > 쿠퍼티노</td>
+                        <td class="left-align">글로벌 애플테크</td>
+                        <td>IT 하드웨어</td>
+                        <td>
+                            <button class="btn btn-edit" onclick="mockAction('수정', '세계 기업정보')">수정</button>
+                            <button class="btn btn-delete" onclick="mockAction('삭제', '세계 기업정보')">삭제</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- 스크립트 기능 구현 -->
+    <script>
+        // 탭 전환 기능
+        function switchTab(tabId, element) {
+            // 모든 탭 컨텐츠 숨기기
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+
+            // 모든 네비게이션 활성화 클래스 제거
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => item.classList.remove('active'));
+
+            // 선택된 탭과 컨텐츠 활성화
+            document.getElementById(tabId).classList.add('active');
+            element.classList.add('active');
+        }
+
+        // 공통 CRUD 동작 모의 함수 (Alert)
+        function mockAction(actionType, targetName) {
+            alert(`[시스템 알림]\n선택하신 '${targetName}' 항목의 [${actionType}] 화면으로 이동하거나 처리합니다.`);
+        }
+
+        // 검색 기능
+        function searchKeyword() {
+            const keyword = document.getElementById('searchInput').value;
+            if(keyword.trim() === '') {
+                alert('검색어를 입력해주세요.');
+                return;
+            }
+            alert(`'${keyword}'(으)로 통합 검색을 수행합니다.`);
+        }
+    </script>
+</body>
+</html>
+
