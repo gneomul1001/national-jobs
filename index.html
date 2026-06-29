@@ -5,16 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>국가 취업 가상 포털 - JobPortal</title>
     <style>
-        /* 기본 스타일 */
+        /* 기본 스타일 및 Reset */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
-            margin: 0;
-            padding: 0;
             background-color: #f4f6fa;
             color: #333;
+            line-height: 1.5;
         }
 
-        /* 헤더 & 검색 영역 */
+        /* 헤더 & 검색 영역 (반응형) */
         header {
             background-color: #ffffff;
             padding: 20px 40px;
@@ -22,6 +22,8 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 2px solid #0059cc;
+            flex-wrap: wrap;
+            gap: 15px;
         }
         .logo {
             font-size: 28px;
@@ -33,9 +35,11 @@
         .search-area {
             display: flex;
             align-items: center;
+            width: 100%;
+            max-width: 450px;
         }
         .search-area input {
-            width: 350px;
+            flex: 1;
             padding: 10px 15px;
             border: 2px solid #0059cc;
             border-radius: 4px 0 0 4px;
@@ -52,47 +56,44 @@
             font-weight: bold;
             font-size: 15px;
         }
-        .search-area button:hover {
-            background-color: #004499;
-        }
+        .search-area button:hover { background-color: #004499; }
 
-        /* 내비게이션 바 (메뉴) */
+        /* 내비게이션 바 (가로 스크롤 지원) */
         nav {
             background-color: #0059cc;
             display: flex;
-            padding: 0 40px;
+            padding: 0 20px;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
         }
+        nav::-webkit-scrollbar { display: none; } /* 스크롤바 숨김 */
         nav div {
-            padding: 15px 25px;
+            padding: 15px 20px;
             color: white;
             font-weight: bold;
             cursor: pointer;
             transition: background 0.2s;
+            flex-shrink: 0;
         }
-        nav div:hover, nav div.active {
-            background-color: #003d8c;
-        }
+        nav div:hover, nav div.active { background-color: #003d8c; }
 
         /* 메인 컨테이너 */
         .container {
             max-width: 1200px;
-            margin: 30px auto;
+            margin: 20px auto;
             background: #ffffff;
-            padding: 30px;
+            padding: 25px;
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
             min-height: 500px;
         }
 
         /* 탭 컨텐츠 */
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
 
-        /* 컨트롤 패널 (필터 및 추가 버튼 영역) */
+        /* 컨트롤 패널 */
         .control-panel {
             background-color: #f8f9fa;
             padding: 15px;
@@ -102,13 +103,20 @@
             justify-content: space-between;
             align-items: center;
             border: 1px solid #e5e5e5;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
         }
         .filters select {
             padding: 8px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            margin-right: 5px;
             font-size: 14px;
+            max-width: 100%;
         }
 
         /* 버튼 스타일 */
@@ -120,47 +128,105 @@
             font-size: 13px;
             font-weight: bold;
             color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
         }
         .btn-add { background-color: #0059cc; padding: 10px 15px; font-size: 14px;}
-        .btn-edit { background-color: #28a745; }
+        .btn-edit { background-color: #28a745; margin-right: 4px; }
         .btn-delete { background-color: #dc3545; }
-        .btn:hover { opacity: 0.8; }
+        .btn:hover { opacity: 0.9; }
 
-        /* 테이블 스타일 */
+        /* 테이블 스크롤 컨테이너 (모바일 대응 핵심) */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 10px;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
+            min-width: 600px; /* 모바일에서 깨지지 않게 최소 너비 확보 */
         }
         th, td {
-            border: 1px solid #e5e5e5;
-            padding: 12px;
+            border-bottom: 1px solid #e5e5e5;
+            padding: 14px 12px;
             text-align: center;
+            font-size: 14px;
         }
         th {
             background-color: #f1f3f5;
             font-weight: bold;
             color: #333;
+            border-bottom: 2px solid #dee2e6;
         }
-        td.left-align {
-            text-align: left;
+        td.left-align { text-align: left; }
+        h2 { margin-top: 0; color: #111; font-size: 22px; margin-bottom: 15px; }
+
+        /* 모달 팝업 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center; align-items: center;
+            padding: 20px;
         }
-        
-        h2 { margin-top: 0; color: #111; font-size: 22px; }
+        .modal-content {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-header {
+            font-size: 18px; font-weight: bold; margin-bottom: 15px;
+            border-bottom: 1px solid #eee; padding-bottom: 10px;
+        }
+        .modal-body { display: flex; flex-direction: column; gap: 12px; }
+        .modal-body label { font-size: 14px; font-weight: bold; color: #555; }
+        .modal-body input, .modal-body select {
+            padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; width: 100%;
+        }
+        .modal-footer {
+            margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 스마트폰/태블릿 대응 미디어 쿼리 */
+        @media (max-width: 768px) {
+            header { padding: 15px 20px; justify-content: center; }
+            .logo { text-align: center; width: 100%; }
+            .search-area { max-width: 100%; }
+            .container { padding: 15px; margin: 10px; }
+            .control-panel { flex-direction: column; align-items: stretch; }
+            .filters { flex-direction: column; }
+            .btn-add { width: 100%; text-align: center; }
+            th, td { padding: 10px 8px; font-size: 13px; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- 헤더 / 검색영역 -->
     <header>
-        <div class="logo">JobPortal</div>
+        <div class="logo" onclick="location.reload()">JobPortal</div>
         <div class="search-area">
-            <input type="text" id="searchInput" placeholder="기업명, 채용공고, 자격증 검색">
+            <input type="text" id="searchInput" placeholder="키워드를 입력하고 엔터 또는 검색">
             <button onclick="searchKeyword()">검색</button>
         </div>
     </header>
 
-    <!-- 내비게이션 (GNB) -->
     <nav>
         <div class="nav-item active" onclick="switchTab('region-jobs', this)">지역별 공고</div>
         <div class="nav-item" onclick="switchTab('industry-jobs', this)">업종별 공고</div>
@@ -169,217 +235,395 @@
         <div class="nav-item" onclick="switchTab('global-companies', this)">세계 기업정보</div>
     </nav>
 
-    <!-- 메인 컨텐츠 -->
     <div class="container">
         
-        <!-- 1. 지역별 공고 -->
         <div id="region-jobs" class="tab-content active">
             <h2>지역별 공고 관리</h2>
             <div class="control-panel">
                 <div class="filters">
-                    <select><option>행정구역 선택 (시/도)</option><option>서울특별시</option><option>부산광역시</option></select>
-                    <select><option>시/군/구</option><option>강남구</option><option>해운대구</option></select>
+                    <select id="filter-region-1"><option value="">행정구역 (시/도)</option><option>서울특별시</option><option>부산광역시</option><option>경기도</option></select>
+                    <select id="filter-region-2"><option value="">시/군/구</option><option>강남구</option><option>해운대구</option><option>분당구</option></select>
                 </div>
-                <button class="btn btn-add" onclick="mockAction('추가', '기업 공고')">+ 공고/기업 추가</button>
+                <button class="btn btn-add" onclick="openAddModal('region-jobs')">+ 공고/기업 추가</button>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>지역</th>
-                        <th>기업명</th>
-                        <th>공고 제목</th>
-                        <th>관리</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>서울 > 강남구</td>
-                        <td class="left-align">(주)테크솔루션</td>
-                        <td class="left-align">프론트엔드 개발자 채용</td>
-                        <td>
-                            <button class="btn btn-edit" onclick="mockAction('수정', '기업 공고')">수정</button>
-                            <button class="btn btn-delete" onclick="mockAction('삭제', '기업 공고')">삭제</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr><th>지역</th><th>기업명</th><th>공고 제목</th><th>관리</th></tr>
+                    </thead>
+                    <tbody id="tbody-region-jobs"></tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- 2. 업종별 공고 -->
         <div id="industry-jobs" class="tab-content">
             <h2>업종별 공고 관리</h2>
             <div class="control-panel">
                 <div class="filters">
-                    <select><option>1차 업종 (대분류)</option><option>IT·인터넷</option><option>금융·은행</option></select>
-                    <select><option>2차 업종 (중분류)</option><option>소프트웨어 개발</option><option>보안</option></select>
+                    <select id="filter-ind-1"><option value="">1차 업종 (대분류)</option><option>IT·인터넷</option><option>금융·은행</option></select>
+                    <select id="filter-ind-2"><option value="">2차 업종 (중분류)</option><option>웹개발</option><option>소프트웨어 개발</option><option>보안</option></select>
                 </div>
-                <div>
-                    <button class="btn btn-add" onclick="mockAction('추가', '업종 카테고리')">+ 업종 추가</button>
-                    <button class="btn btn-add" onclick="mockAction('추가', '업종별 공고')">+ 공고 추가</button>
-                </div>
+                <button class="btn btn-add" onclick="openAddModal('industry-jobs')">+ 업종/공고 추가</button>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>업종 (대 > 중)</th>
-                        <th>기업명</th>
-                        <th>공고 제목</th>
-                        <th>관리 (업종/공고)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>IT·인터넷 > 웹개발</td>
-                        <td class="left-align">코딩웍스</td>
-                        <td class="left-align">웹 퍼블리셔 신입 모집</td>
-                        <td>
-                            <button class="btn btn-edit" onclick="mockAction('수정', '업종/공고')">수정</button>
-                            <button class="btn btn-delete" onclick="mockAction('삭제', '업종/공고')">삭제</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr><th>업종 분류</th><th>기업명</th><th>공고 제목</th><th>관리</th></tr>
+                    </thead>
+                    <tbody id="tbody-industry-jobs"></tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- 3. 자격증 정보 -->
         <div id="cert-info" class="tab-content">
             <h2>자격증 정보 관리</h2>
             <div class="control-panel">
                 <div class="filters">
-                    <select><option>분야 (카테고리)</option><option>IT/정보통신</option><option>어학</option><option>국가기술자격</option></select>
+                    <select id="filter-cert"><option value="">분야 (카테고리)</option><option>IT/정보통신</option><option>어학</option><option>국가기술자격</option></select>
                 </div>
-                <div>
-                    <button class="btn btn-add" onclick="mockAction('추가', '분야(카테고리)')">+ 분야 추가</button>
-                    <button class="btn btn-add" onclick="mockAction('추가', '자격증')">+ 자격증 추가</button>
-                </div>
+                <button class="btn btn-add" onclick="openAddModal('cert-info')">+ 분야/자격증 추가</button>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>분야(카테고리)</th>
-                        <th>자격증명</th>
-                        <th>시행기관</th>
-                        <th>관리</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>IT/정보통신</td>
-                        <td class="left-align">정보처리기사</td>
-                        <td>한국산업인력공단</td>
-                        <td>
-                            <button class="btn btn-edit" onclick="mockAction('수정', '자격증')">수정</button>
-                            <button class="btn btn-delete" onclick="mockAction('삭제', '자격증')">삭제</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr><th>분야(카테고리)</th><th>자격증명</th><th>시행기관</th><th>관리</th></tr>
+                    </thead>
+                    <tbody id="tbody-cert-info"></tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- 4. 전국 기업정보 -->
         <div id="national-companies" class="tab-content">
             <h2>전국 기업정보 관리</h2>
             <div class="control-panel">
                 <div class="filters">
-                    <select><option>시/도</option><option>경기도</option></select>
-                    <select><option>시/군/구</option><option>성남시 분당구</option></select>
-                    <select><option>동/읍/면</option><option>삼평동</option></select>
+                    <select id="filter-nat-1"><option value="">시/도</option><option>경기도</option><option>서울특별시</option></select>
+                    <select id="filter-nat-2"><option value="">시/군/구</option><option>성남시 분당구</option><option>강남구</option></select>
+                    <select id="filter-nat-3"><option value="">동/읍/면</option><option>삼평동</option><option>역삼동</option></select>
                 </div>
-                <button class="btn btn-add" onclick="mockAction('추가', '전국 기업정보')">+ 기업 추가</button>
+                <button class="btn btn-add" onclick="openAddModal('national-companies')">+ 전국 기업 추가</button>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>행정구역 (시/도 > 시/군/구 > 동/읍/면)</th>
-                        <th>기업명</th>
-                        <th>기업규모</th>
-                        <th>관리</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>경기도 > 성남시 분당구 > 삼평동</td>
-                        <td class="left-align">판교네트웍스</td>
-                        <td>중견기업</td>
-                        <td>
-                            <button class="btn btn-edit" onclick="mockAction('수정', '전국 기업정보')">수정</button>
-                            <button class="btn btn-delete" onclick="mockAction('삭제', '전국 기업정보')">삭제</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr><th>행정구역 (시도 > 시군구 > 동읍면)</th><th>기업명</th><th>기업규모</th><th>관리</th></tr>
+                    </thead>
+                    <tbody id="tbody-national-companies"></tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- 5. 세계 기업정보 -->
         <div id="global-companies" class="tab-content">
             <h2>세계 기업정보 관리</h2>
             <div class="control-panel">
                 <div class="filters">
-                    <select><option>지역(대륙)</option><option>북미</option><option>유럽</option></select>
-                    <select><option>국가</option><option>미국</option><option>캐나다</option></select>
-                    <select><option>1차 행정구역 (State/Province)</option><option>캘리포니아 (CA)</option></select>
-                    <select><option>2차 행정구역 (County)</option><option>산타클라라 카운티</option></select>
-                    <select><option>3차 행정구역 (City/Town)</option><option>산호세 (San Jose)</option></select>
+                    <select id="filter-glob-1"><option value="">지역(대륙)</option><option>북미</option><option>유럽</option><option>아시아</option></select>
+                    <select id="filter-glob-2"><option value="">국가</option><option>미국</option><option>독일</option><option>일본</option></select>
                 </div>
-                <button class="btn btn-add" onclick="mockAction('추가', '세계 기업정보')">+ 글로벌 기업 추가</button>
+                <button class="btn btn-add" onclick="openAddModal('global-companies')">+ 글로벌 기업 추가</button>
             </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>글로벌 위치 (지역 > 국가 > 1차 > 2차 > 3차)</th>
-                        <th>기업명</th>
-                        <th>산업분야</th>
-                        <th>관리</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="left-align">북미 > 미국 > 캘리포니아 > 산타클라라 > 쿠퍼티노</td>
-                        <td class="left-align">글로벌 애플테크</td>
-                        <td>IT 하드웨어</td>
-                        <td>
-                            <button class="btn btn-edit" onclick="mockAction('수정', '세계 기업정보')">수정</button>
-                            <button class="btn btn-delete" onclick="mockAction('삭제', '세계 기업정보')">삭제</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr><th>글로벌 위치 (지역 > 국가 > 1차 > 2차 > 3차)</th><th>기업명</th><th>산업분야</th><th>관리</th></tr>
+                    </thead>
+                    <tbody id="tbody-global-companies"></tbody>
+                </table>
+            </div>
         </div>
 
     </div>
 
-    <!-- 스크립트 기능 구현 -->
+    <div id="crudModal" class="modal">
+        <div class="modal-content">
+            <div id="modalHeader" class="modal-header">항목 추가/수정</div>
+            <div id="modalBody" class="modal-body">
+                </div>
+            <div class="modal-footer">
+                <button class="btn btn-delete" onclick="closeModal()">취소</button>
+                <button class="btn btn-add" id="btnModalSubmit" onclick="saveData()">저장</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // 가상 초기 데이터 초기화
+        let store = {
+            'region-jobs': [
+                { id: 1, region: '서울 > 강남구', company: '(주)테크솔루션', title: '프론트엔드 개발자 채용' },
+                { id: 2, region: '부산 > 해운대구', company: '해양관광네트웍스', title: '콘텐츠 마케팅 담당자 모집' }
+            ],
+            'industry-jobs': [
+                { id: 1, category: 'IT·인터넷 > 웹개발', company: '코딩웍스', title: '웹 퍼블리셔 신입 모집' }
+            ],
+            'cert-info': [
+                { id: 1, category: 'IT/정보통신', name: '정보처리기사', agency: '한국산업인력공단' }
+            ],
+            'national-companies': [
+                { id: 1, address: '경기도 > 성남시 분당구 > 삼평동', company: '판교네트웍스', size: '중견기업' }
+            ],
+            'global-companies': [
+                { id: 1, address: '북미 > 미국 > 캘리포니아 > 산타클라라 > 쿠퍼티노', company: '글로벌 애플테크', industry: 'IT 하드웨어' }
+            ]
+        };
+
+        let currentTabId = 'region-jobs';
+        let editTargetId = null; // 수정 모드일 때 해당 데이터 ID 저장
+
+        // 초기 화면 로드
+        document.addEventListener("DOMContentLoaded", () => {
+            renderAll();
+            
+            // 검색 인풋창 엔터키 이벤트 바인딩
+            document.getElementById('searchInput').addEventListener('keypress', (e) => {
+                if(e.key === 'Enter') searchKeyword();
+            });
+        });
+
         // 탭 전환 기능
         function switchTab(tabId, element) {
-            // 모든 탭 컨텐츠 숨기기
+            currentTabId = tabId;
             const contents = document.querySelectorAll('.tab-content');
             contents.forEach(content => content.classList.remove('active'));
 
-            // 모든 네비게이션 활성화 클래스 제거
             const navItems = document.querySelectorAll('.nav-item');
             navItems.forEach(item => item.classList.remove('active'));
 
-            // 선택된 탭과 컨텐츠 활성화
             document.getElementById(tabId).classList.add('active');
             element.classList.add('active');
         }
 
-        // 공통 CRUD 동작 모의 함수 (Alert)
-        function mockAction(actionType, targetName) {
-            alert(`[시스템 알림]\n선택하신 '${targetName}' 항목의 [${actionType}] 화면으로 이동하거나 처리합니다.`);
+        // 전체 화면 렌더링 함수
+        function renderAll() {
+            renderTable('region-jobs', ['region', 'company', 'title']);
+            renderTable('industry-jobs', ['category', 'company', 'title']);
+            renderTable('cert-info', ['category', 'name', 'agency']);
+            renderTable('national-companies', ['address', 'company', 'size']);
+            renderTable('global-companies', ['address', 'company', 'industry']);
         }
 
-        // 검색 기능
-        function searchKeyword() {
-            const keyword = document.getElementById('searchInput').value;
-            if(keyword.trim() === '') {
-                alert('검색어를 입력해주세요.');
+        // 특정 테이블 데이터 렌더링 함수
+        function renderTable(tabId, fields) {
+            const tbody = document.getElementById(`tbody-${tabId}`);
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const dataList = store[tabId];
+
+            if(dataList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="${fields.length + 1}" style="color:#999; padding:30px 0;">등록된 데이터가 없습니다.</td></tr>`;
                 return;
             }
-            alert(`'${keyword}'(으)로 통합 검색을 수행합니다.`);
+
+            dataList.forEach(item => {
+                const tr = document.createElement('tr');
+                
+                // 데이터 필드 채우기
+                fields.forEach((field, index) => {
+                    const td = document.createElement('td');
+                    td.textContent = item[field];
+                    if(index > 0) td.className = 'left-align'; // 첫번째 칸 제외하고 좌측정렬
+                    tr.appendChild(td);
+                });
+
+                // 관리 버튼 칸 구성
+                const actionTd = document.createElement('td');
+                actionTd.innerHTML = `
+                    <button class="btn btn-edit" onclick="openEditModal('${tabId}', ${item.id})">수정</button>
+                    <button class="btn btn-delete" onclick="deleteData('${tabId}', ${item.id})">삭제</button>
+                `;
+                tr.appendChild(actionTd);
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 데이터 삭제 기능
+        function deleteData(tabId, id) {
+            if(confirm("정말로 이 항목을 삭제하시겠습니까?")) {
+                store[tabId] = store[tabId].filter(item => item.id !== id);
+                renderAll();
+            }
+        }
+
+        // 모달창 닫기
+        function closeModal() {
+            document.getElementById('crudModal').style.display = 'none';
+        }
+
+        // 추가 모달창 열기
+        function openAddModal(tabId) {
+            editTargetId = null;
+            document.getElementById('modalHeader').textContent = getTabName(tabId) + " 추가";
+            buildModalForm(tabId);
+            document.getElementById('crudModal').style.display = 'flex';
+        }
+
+        // 수정 모달창 열기
+        function openEditModal(tabId, id) {
+            editTargetId = id;
+            document.getElementById('modalHeader').textContent = getTabName(tabId) + " 수정";
+            buildModalForm(tabId);
+            
+            // 기존 데이터 찾아서 폼에 채워넣기
+            const item = store[tabId].find(d => d.id === id);
+            if(item) {
+                const inputs = document.querySelectorAll('#modalBody input, #modalBody select');
+                inputs.forEach(input => {
+                    const field = input.dataset.field;
+                    if(item[field] !== undefined) input.value = item[field];
+                });
+            }
+            
+            document.getElementById('crudModal').style.display = 'flex';
+        }
+
+        // 탭 종류별 폼 빌더 구문
+        function buildModalForm(tabId) {
+            const body = document.getElementById('modalBody');
+            body.innerHTML = '';
+            
+            let config = [];
+            if(tabId === 'region-jobs') {
+                config = [
+                    { label: '지역 (예: 서울 > 강남구)', field: 'region', type: 'text', placeholder: '시/도 및 시/군/구 입력' },
+                    { label: '기업명', field: 'company', type: 'text', placeholder: '회사 이름 입력' },
+                    { label: '공고 제목', field: 'title', type: 'text', placeholder: '구인 공고 타이틀' }
+                ];
+            } else if(tabId === 'industry-jobs') {
+                config = [
+                    { label: '업종 분류 (예: IT > 웹개발)', field: 'category', type: 'text', placeholder: '대분류 > 중분류 형태 입력' },
+                    { label: '기업명', field: 'company', type: 'text', placeholder: '회사 이름 입력' },
+                    { label: '공고 제목', field: 'title', type: 'text', placeholder: '구인 공고 타이틀' }
+                ];
+            } else if(tabId === 'cert-info') {
+                config = [
+                    { label: '분야 (카테고리)', field: 'category', type: 'text', placeholder: '예: IT/정보통신, 어학 등' },
+                    { label: '자격증명', field: 'name', type: 'text', placeholder: '자격증 명칭' },
+                    { label: '시행기관', field: 'agency', type: 'text', placeholder: '발행 및 시행처 명칭' }
+                ];
+            } else if(tabId === 'national-companies') {
+                config = [
+                    { label: '행정구역 (시도 > 시군구 > 동읍면)', field: 'address', type: 'text', placeholder: '예: 경기도 > 성남시 분당구 > 삼평동' },
+                    { label: '기업명', field: 'company', type: 'text', placeholder: '회사 이름' },
+                    { label: '기업규모', field: 'size', type: 'text', placeholder: '대기업 / 중견기업 / 중소기업 / 스타트업' }
+                ];
+            } else if(tabId === 'global-companies') {
+                config = [
+                    { label: '글로벌 위치 (지역>국가>1차>2차>3차 행정구역)', field: 'address', type: 'text', placeholder: '대륙 > 국가 > 주 > 카운티 > 도시 명칭' },
+                    { label: '기업명', field: 'company', type: 'text', placeholder: '글로벌 회사 이름' },
+                    { label: '산업분야', field: 'industry', type: 'text', placeholder: '주요 산업군 기재' }
+                ];
+            }
+
+            config.forEach(c => {
+                const wrapper = document.createElement('div');
+                wrapper.style.display = 'flex';
+                wrapper.style.flexDirection = 'column';
+                wrapper.style.gap = '5px';
+
+                const lbl = document.createElement('label');
+                lbl.textContent = c.label;
+                
+                const input = document.createElement('input');
+                input.type = c.type;
+                input.dataset.field = c.field;
+                input.placeholder = c.placeholder;
+                input.required = true;
+
+                wrapper.appendChild(lbl);
+                wrapper.appendChild(input);
+                body.appendChild(wrapper);
+            });
+        }
+
+        // 모달 저장 버튼 액션
+        function saveData() {
+            const inputs = document.querySelectorAll('#modalBody input');
+            let newItem = {};
+            let isValid = true;
+
+            inputs.forEach(input => {
+                if(!input.value.trim()) {
+                    isValid = false;
+                    input.style.borderColor = '#dc3545';
+                } else {
+                    input.style.borderColor = '#ccc';
+                }
+                newItem[input.dataset.field] = input.value.trim();
+            });
+
+            if(!isValid) {
+                alert("모든 필드를 채워주세요.");
+                return;
+            }
+
+            if (editTargetId === null) {
+                // 신규 추가 로직
+                newItem.id = store[currentTabId].length ? Math.max(...store[currentTabId].map(o => o.id)) + 1 : 1;
+                store[currentTabId].push(newItem);
+            } else {
+                // 기존 데이터 수정 로직
+                const idx = store[currentTabId].findIndex(d => d.id === editTargetId);
+                if(idx !== -1) {
+                    newItem.id = editTargetId;
+                    store[currentTabId][idx] = newItem;
+                }
+            }
+
+            renderAll();
+            closeModal();
+        }
+
+        // 현재 선택 탭 한글명 반환 도우미
+        function getTabName(tabId) {
+            if(tabId === 'region-jobs') return '지역별 공고';
+            if(tabId === 'industry-jobs') return '업종별 공고';
+            if(tabId === 'cert-info') return '자격증 정보';
+            if(tabId === 'national-companies') return '전국 기업정보';
+            if(tabId === 'global-companies') return '세계 기업정보';
+            return '항목';
+        }
+
+        // 통합 검색 기능 (전체 탭의 임의 필드 매칭 검색 모방)
+        function searchKeyword() {
+            const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+            if(keyword === '') {
+                alert('검색어를 입력해주세요.');
+                renderAll();
+                return;
+            }
+            
+            // 현재 활성화된 탭에서 키워드가 포함된 행만 필터링하여 일시적으로 표기
+            const tbody = document.getElementById(`tbody-${currentTabId}`);
+            const dataList = store[currentTabId];
+            
+            // 모든 오브젝트 밸류값 중 검색어가 포함되는 것 필터
+            const filtered = dataList.filter(item => {
+                return Object.values(item).some(val => String(val).toLowerCase().includes(keyword));
+            });
+
+            // 필터링 데이터 임시 화면 렌더링
+            tbody.innerHTML = '';
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="color:#dc3545; padding:30px 0;">'${keyword}'에 해당하는 검색 결과가 현재 탭에 없습니다.</td></tr>`;
+                return;
+            }
+
+            // 필터 결과 가상 출력
+            filtered.forEach(item => {
+                const tr = document.createElement('tr');
+                Object.keys(item).forEach(k => {
+                    if(k === 'id') return;
+                    const td = document.createElement('td');
+                    td.textContent = item[k];
+                    tr.appendChild(td);
+                });
+                const actionTd = document.createElement('td');
+                actionTd.innerHTML = `<button class="btn btn-delete" onclick="renderAll()">검색 해제</button>`;
+                tr.appendChild(actionTd);
+                tbody.appendChild(tr);
+            });
         }
     </script>
 </body>
 </html>
-
